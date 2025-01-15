@@ -13,7 +13,9 @@ public class Main {
 
     public Main() {
         query = new Queries();
-        inputHandler = new InputHandler();
+        inputHandler = new InputHandler(query);
+        //query.deleteAllData();
+        //query.selectAll();
         inputHandler.CRUDselection();
     }
 }

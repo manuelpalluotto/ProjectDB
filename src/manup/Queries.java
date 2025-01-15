@@ -73,7 +73,7 @@ public class Queries {
         }
     }
 
-    public void updateData(String column, String value, int id) {
+    public void updateData(int id, String column, String value) {
         try {
             String query = "UPDATE person SET " + column + " = " + value + "WHERE id = " + id;
             PreparedStatement stmt = conn.prepareStatement(query);
@@ -83,7 +83,7 @@ public class Queries {
         }
     }
 
-    public void updateData(String column, int value, int id) {
+    public void updateData(int id, String column, int value) {
         try {
             String query = "UPDATE person SET " + column + " = " + value + "WHERE id = " + id;
             PreparedStatement stmt = conn.prepareStatement(query);
@@ -93,7 +93,7 @@ public class Queries {
         }
     }
 
-    public void updateData(String column, Date value, int id) {
+    public void updateData(int id, String column, Date value) {
         try {
             String query = "UPDATE person SET " + column + " = " + value + "WHERE id = " + id;
             PreparedStatement stmt = conn.prepareStatement(query);
