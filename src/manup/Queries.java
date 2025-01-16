@@ -8,7 +8,7 @@ public class Queries {
     public final String USER = "utzkadhhhw5qgb5v9ksr";
     public final int PORT = 50013;
     public final String DATABASE = "b8kvkjnhmaouphujwxhh";
-    public final String PASSWORD = "HEa7y8VRvEkJR8htpfPyjODsRvxxJ2";
+    public final String PASSWORD = "GZcBUGE7j2tKX4805qLc";
     private Connection conn;
 
     public Queries() {
