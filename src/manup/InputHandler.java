@@ -23,6 +23,7 @@ public class InputHandler {
     private int id;
     private String column;
     private String[] columns;
+    private String answer;
 
     public InputHandler(Queries query) {
         this.query = query;
@@ -43,7 +44,7 @@ public class InputHandler {
                     create(scanner);
                     continue;
                 case 2:
-                    read();
+                    read(scanner);
                     continue;
                 case 3:
                     update(scanner);
@@ -92,9 +93,31 @@ public class InputHandler {
         sleep();
     }
 
-    public void read() {
+    public void read(Scanner scanner) {
         readPrompt();
         query.selectAll();
+
+        System.out.println("Möchten Sie die Einträge nach einer im Nachnamen enthaltenen Zeichenkette filtern? (Y/N)");
+        while (true) {
+            sleep();
+            String answer = scanner.nextLine().trim();
+
+        }
+    }
+
+
+    public boolean replyValidation(String answer, Scanner scanner) {
+        String check = scanner.nextLine().trim();
+        System.out.println("Eingabe: \"" + answer + "\". Korrekt?(Y/N)");
+        while (true) {
+            if (check.equalsIgnoreCase("Y")) {
+                return true;
+            } else if (check.trim().equalsIgnoreCase("N")) {
+                return false;
+            } else {
+                System.out.println("Valide Möglichkeiten sind nur \"Y\" oder \"N\".");
+            }
+        }
     }
 
     public void create(Scanner scanner) {

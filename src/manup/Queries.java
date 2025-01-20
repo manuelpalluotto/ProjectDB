@@ -17,19 +17,6 @@ public class Queries {
         }
     }
 
-    public void printPersonCount() {
-        try {
-            String query = "SELECT COUNT(*) FROM person";
-            PreparedStatement statement = conn.prepareStatement(query);
-            ResultSet resultSet = statement.executeQuery();
-            resultSet.next();
-            Long count = resultSet.getLong(1);
-            System.out.printf("Current person count in database: %s%n", count);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void selectAll() {
         String query = "SELECT * FROM person";
         try (PreparedStatement stmt = conn.prepareStatement(query);
@@ -56,7 +43,6 @@ public class Queries {
         }
     }
 
-    // Hilfsmethode zum Tabellenkopf
     private void printTableHeader() {
         String separator = "+-----+---------------+---------------+-------------------------+---------------+--------------+-----------------+----------------------+";
         System.out.println(separator);
@@ -65,13 +51,11 @@ public class Queries {
         System.out.println(separator);
     }
 
-    // Hilfsmethode zur Tabellenausgabe einer Zeile
     private void printTableRow(int id, String firstName, String lastName, String email, String country, Date birthday, int salary, int bonus) {
         System.out.printf("| %-3d | %-13s | %-13s | %-23s | %-13s | %-12s | %-15d | %-20d |%n",
                 id, firstName, lastName, email, country, birthday, salary, bonus);
         System.out.println("+-----+---------------+---------------+-------------------------+---------------+--------------+-----------------+----------------------+");
     }
-
 
     public void insertData(String fN, String lN, String email, String country, String birthday, int salary, int bonus) {
         try {
@@ -189,5 +173,27 @@ public class Queries {
             e.printStackTrace();
         }
         return ids;
+    }
+
+    public void selectFilteredByLastName(String filter) {
+        String query = "SELECT * FROM person WHERE LOWER(last_name) LIKE '%" + filter + "%'";
+        try {
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                printTableRow(
+                        rs.getInt("id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getString("email"),
+                        rs.getString("country"),
+                        rs.getDate("birthday"),
+                        rs.getInt("salary"),
+                        rs.getInt("bonus")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
