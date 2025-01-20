@@ -4,17 +4,13 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class Queries {
-    public final String SERVER = "b8kvkjnhmaouphujwxhh-postgresql.services.clever-cloud.com";
-    public final String USER = "";
-    public final int PORT = 50013;
-    public final String DATABASE = "b8kvkjnhmaouphujwxhh";
-    public final String PASSWORD = "";
+
     private Connection conn;
 
     public Queries() {
         try {
-            String url = "jdbc:postgresql://%s:%s/%s".formatted(SERVER, PORT, DATABASE);
-            conn = DriverManager.getConnection(url, USER, PASSWORD);
+            String url = "jdbc:postgresql://%s:%s/%s".formatted(Creds.SERVER, Creds.PORT, Creds.DATABASE);
+            conn = DriverManager.getConnection(url, Creds.USER, Creds.PASSWORD);
             System.out.println("Connected to the PostgreSQL server successfully.");
         } catch (Exception e) {
             e.printStackTrace();
