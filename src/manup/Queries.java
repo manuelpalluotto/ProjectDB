@@ -107,9 +107,8 @@ public class Queries {
         try {
             String query = "DELETE FROM person WHERE id = " + id;
             PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -118,6 +117,27 @@ public class Queries {
             String query = "DELETE FROM person";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void selectAfterID(int id) {
+        try {
+            String query = "SELECT * FROM person WHERE id = " + id;
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.executeUpdate();
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                int ident = rs.getInt(1);
+                String first_name = rs.getString(2);
+                String last_name = rs.getString(3);
+                String email = rs.getString(4);
+                String country = rs.getString(5);
+                Date birthday = Date.valueOf(rs.getString(6));
+                int salary = rs.getInt(7);
+                int bonus = rs.getInt(8);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
