@@ -101,7 +101,7 @@ public class InputHandler {
         while (true) {
             sleep();
             String answer = scanner.nextLine().trim();
-
+            //wasdasdagfsahgaeg
         }
     }
 
