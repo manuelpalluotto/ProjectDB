@@ -1,8 +1,5 @@
 package manup;
 
-import java.sql.*;
-import java.time.LocalDate;
-
 public class Main {
     private Queries query;
     private InputHandler inputHandler;

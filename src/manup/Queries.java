@@ -1,14 +1,14 @@
 package manup;
 
 import java.sql.*;
-import java.time.LocalDate;
+import java.util.ArrayList;
 
 public class Queries {
     public final String SERVER = "b8kvkjnhmaouphujwxhh-postgresql.services.clever-cloud.com";
-    public final String USER = "utzkadhhhw5qgb5v9ksr";
+    public final String USER = "";
     public final int PORT = 50013;
     public final String DATABASE = "b8kvkjnhmaouphujwxhh";
-    public final String PASSWORD = "GZcBUGE7j2tKX4805qLc";
+    public final String PASSWORD = "";
     private Connection conn;
 
     public Queries() {
@@ -35,26 +35,47 @@ public class Queries {
     }
 
     public void selectAll() {
-        try {
-            String query = "SELECT * FROM person";
-            PreparedStatement stmt = conn.prepareStatement(query);
-            ResultSet rs = stmt.executeQuery();
-            System.out.printf("%-5s %-15s %-15s %-25s %-15s %-12s %-10s %-10s%n", "ID", "First Name", "Last Name", "E-Mail", "Country", "Birthday", "Salary", "Bonus");
+        String query = "SELECT * FROM person";
+        try (PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            // Tabellenkopf
+            printTableHeader();
+
+            // Tabelleninhalt
             while (rs.next()) {
-                int id = rs.getInt(1);
-                String first_name = rs.getString(2);
-                String last_name = rs.getString(3);
-                String email = rs.getString(4);
-                String country = rs.getString(5);
-                Date birthday = rs.getDate(6);
-                int salary = rs.getInt(7);
-                int bonus = rs.getInt(8);
-                System.out.printf("%-5d %-15s %-15s %-25s %-15s %-12s %-10d %-10d%n", id, first_name, last_name, email, country, birthday, salary, bonus);
+                printTableRow(
+                        rs.getInt("id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getString("email"),
+                        rs.getString("country"),
+                        rs.getDate("birthday"),
+                        rs.getInt("salary"),
+                        rs.getInt("bonus")
+                );
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
+    // Hilfsmethode zum Tabellenkopf
+    private void printTableHeader() {
+        String separator = "+-----+---------------+---------------+-------------------------+---------------+--------------+-----------------+----------------------+";
+        System.out.println(separator);
+        System.out.printf("| %-3s | %-13s | %-13s | %-23s | %-13s | %-12s | %-15s | %-20s |%n",
+                "ID", "Vorname", "Nachname", "E-Mail", "Land", "Geburtstag", "Jahreseinkommen", "jährlicher Bonus");
+        System.out.println(separator);
+    }
+
+    // Hilfsmethode zur Tabellenausgabe einer Zeile
+    private void printTableRow(int id, String firstName, String lastName, String email, String country, Date birthday, int salary, int bonus) {
+        System.out.printf("| %-3d | %-13s | %-13s | %-23s | %-13s | %-12s | %-15d | %-20d |%n",
+                id, firstName, lastName, email, country, birthday, salary, bonus);
+        System.out.println("+-----+---------------+---------------+-------------------------+---------------+--------------+-----------------+----------------------+");
+    }
+
 
     public void insertData(String fN, String lN, String email, String country, String birthday, int salary, int bonus) {
         try {
@@ -75,28 +96,34 @@ public class Queries {
 
     public void updateData(int id, String column, String value) {
         try {
-            String query = "UPDATE person SET " + column + " = " + value + "WHERE id = " + id;
+            String query = "UPDATE person SET \"" + column + "\" = ? WHERE id = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setString(1, value);
+            stmt.setInt(2, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
     public void updateData(int id, String column, int value) {
         try {
-            String query = "UPDATE person SET " + column + " = " + value + "WHERE id = " + id;
+            String query = "UPDATE person SET \"" + column + "\" = ? WHERE id = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, value);
+            stmt.setInt(2, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void updateData(int id, String column, Date value) {
+    public void updateData(int id, Date value) {
         try {
-            String query = "UPDATE person SET " + column + " = " + value + "WHERE id = " + id;
+            String query = "UPDATE person SET birthday = ? WHERE id = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setDate(1, value);
+            stmt.setInt(2, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -107,6 +134,7 @@ public class Queries {
         try {
             String query = "DELETE FROM person WHERE id = " + id;
             PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -122,24 +150,48 @@ public class Queries {
         }
     }
 
-    public void selectAfterID(int id) {
-        try {
-            String query = "SELECT * FROM person WHERE id = " + id;
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.executeUpdate();
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                int ident = rs.getInt(1);
-                String first_name = rs.getString(2);
-                String last_name = rs.getString(3);
-                String email = rs.getString(4);
-                String country = rs.getString(5);
-                Date birthday = Date.valueOf(rs.getString(6));
-                int salary = rs.getInt(7);
-                int bonus = rs.getInt(8);
+    public void selectById(int id) {
+        String query = "SELECT * FROM person WHERE id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                // Tabellenkopf
+                printTableHeader();
+
+                // Eintrag ausgeben, wenn vorhanden
+                if (rs.next()) {
+                    printTableRow(
+                            rs.getInt("id"),
+                            rs.getString("first_name"),
+                            rs.getString("last_name"),
+                            rs.getString("email"),
+                            rs.getString("country"),
+                            rs.getDate("birthday"),
+                            rs.getInt("salary"),
+                            rs.getInt("bonus")
+                    );
+                } else {
+                    System.out.println("Keine Einträge mit dieser ID gefunden.");
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public ArrayList<Integer> getIDs() {
+        ArrayList<Integer> ids = new ArrayList<>();
+        String query = "SELECT id FROM person";
+        try {
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                ids.add(rs.getInt("id"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ids;
     }
 }
