@@ -10,7 +10,6 @@ public class InputHandler {
     public static final String ANSI_RED = "\033[0;31m";
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_YELLOW = "\u001B[33m";
-    private int idCounter = 0;
     private int input = 0;
     private Queries query;
     private String firstName;
@@ -23,7 +22,6 @@ public class InputHandler {
     private int id;
     private String column;
     private String[] columns;
-    private String answer;
 
     public InputHandler(Queries query) {
         this.query = query;
@@ -62,8 +60,8 @@ public class InputHandler {
         while (true) {
             try {
                 input = scanner.nextInt();
+                scanner.nextLine();
                 if (input > 0 && input < 6) {
-                    scanner.nextLine();
                     break;
                 }
             } catch (InputMismatchException i) {
@@ -94,25 +92,61 @@ public class InputHandler {
     }
 
     public void read(Scanner scanner) {
-        readPrompt();
-        query.selectAll();
-
-        System.out.println("Möchten Sie die Einträge nach einer im Nachnamen enthaltenen Zeichenkette filtern? (Y/N)");
-        while (true) {
-            sleep();
-            String answer = scanner.nextLine().trim();
-            //wasdasdagfsahgaeg
+        int readSelection = scanner.nextInt();
+        scanner.nextLine();
+        if (readPrompt(scanner)) {
+            switch (readSelection) {
+                case 1 ->
+                    query.selectAll();
+                case 2 -> {
+                    sleep();
+                    System.out.println();
+                    System.out.println(ANSI_GREEN + "Nach welcher Spalte möchten Sie suchen?" + ANSI_RESET);
+                    System.out.printf("| %-3s | %-13s | %-13s | %-23s | %-13s | %-12s | %-15s | %-20s |%n",
+                            "ID", "Vorname", "Nachname", "E-Mail", "Land", "Geburtstag", "Einkommen", "Bonus");
+                    System.out.println("+-----+---------------+---------------+-------------------------+---------------+--------------+-----------------+----------------------+");
+                    String columnFilter = scanner.nextLine();
+                    sortingColsForSelection(columnFilter);
+                }
+                case 3 -> {
+                    String columnFilter =  scanner.nextLine();
+                    query.selectFilteredByLastName(columnFilter);
+                }
+            }
         }
     }
 
+    public void readFilteredByLastName(Scanner scanner) {
+        System.out.println("Möchten Sie die Einträge nach einer im Nachnamen enthaltenen Zeichenkette filtern? (Y/N)");
+        String answer = scanner.nextLine().trim();
+        while (true) {
+            if (answer.equalsIgnoreCase("Y")) {
+                while (true) {
+                    System.out.println("Bitte geben Sie die Zeichenkette an.");
+                    String substring = scanner.nextLine();
+                    if (replyValidation(substring, scanner)) {
+                        break;
+                    }
+                }
+                break;
+            } else if (answer.equalsIgnoreCase("N")) {
+                System.out.println("Die gesamte Tabelle wird ausgegeben.");
+                query.selectAll();
+                break;
+            } else {
+                System.out.println("Valide Möglichkeiten sind nur Y/N.");
+            }
+        }
+    }
 
     public boolean replyValidation(String answer, Scanner scanner) {
-        String check = scanner.nextLine().trim();
         System.out.println("Eingabe: \"" + answer + "\". Korrekt?(Y/N)");
+        String confirmation = scanner.nextLine().trim();
         while (true) {
-            if (check.equalsIgnoreCase("Y")) {
+            if (confirmation.equalsIgnoreCase("Y")) {
+                query.selectFilteredByLastName(answer);
                 return true;
-            } else if (check.trim().equalsIgnoreCase("N")) {
+            } else if (confirmation.equalsIgnoreCase("N")) {
                 return false;
             } else {
                 System.out.println("Valide Möglichkeiten sind nur \"Y\" oder \"N\".");
@@ -245,15 +279,25 @@ public class InputHandler {
         System.out.println(ANSI_YELLOW + "Hinweis: Nach jeder Eingabe bitte mit Enter bestätigen." + ANSI_RESET);
     }
 
-    public void readPrompt() {
+    public boolean readPrompt(Scanner scanner) {
+        int i = scanner.nextInt();
+        scanner.nextLine();
         System.out.println(ANSI_GREEN + "Lesen wurde ausgewählt." + ANSI_RESET);
         sleep();
-        System.out.print(". ");
+        System.out.println("In welcher Form möchten Sie die Tabelle auslesen?");
         sleep();
-        System.out.print(". ");
-        sleep();
-        System.out.print("." + "\n");
-        sleep();
+        System.out.println("1. Gesamte Tabelle\n2. Gefiltert nach einer bestimmten Spalte\n3. Gefiltert nach einer im Nachnamen enthaltenen Zeichenkette");
+        while (true) {
+            try {
+                if (i > 0 || i < 4) {
+                    return true;
+                } else {
+                    System.out.println("Bitte nur Zahlen von 1 bis 3 angeben und mit Enter bestätigen.");
+                }
+            } catch (InputMismatchException f) {
+                System.out.println("Bitte nur Zahlen von 1 bis 3 angeben und mit Enter bestätigen.");
+            }
+        }
     }
 
     public void updatePrompt() {
@@ -399,6 +443,34 @@ public class InputHandler {
                 }
             }
 
+        }
+    }
+
+    public void sortingColsForSelection(String column) {
+        switch (column.trim()) {
+            case "Geburtstag" ->
+                        query.selectByColumn("birthday");
+
+            case "jährlicher Bonus" ->
+                query.selectByColumn("bonus");
+
+            case "Jahreseinkommen" ->
+                query.selectByColumn("salary");
+
+            case "Vorname" ->
+                query.selectByColumn("first_name");
+
+            case "Nachname" ->
+                query.selectByColumn("last_name");
+
+            case "E-Mail" ->
+                query.selectByColumn("email");
+
+            case "Land" ->
+                query.selectByColumn("country");
+
+            case "ID" ->
+                query.selectByColumn("id");
         }
     }
 }

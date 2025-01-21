@@ -51,7 +51,7 @@ public class Queries {
         System.out.println(separator);
     }
 
-    private void printTableRow(int id, String firstName, String lastName, String email, String country, Date birthday, int salary, int bonus) {
+    public void printTableRow(int id, String firstName, String lastName, String email, String country, Date birthday, int salary, int bonus) {
         System.out.printf("| %-3d | %-13s | %-13s | %-23s | %-13s | %-12s | %-15d | %-20d |%n",
                 id, firstName, lastName, email, country, birthday, salary, bonus);
         System.out.println("+-----+---------------+---------------+-------------------------+---------------+--------------+-----------------+----------------------+");
@@ -194,6 +194,26 @@ public class Queries {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void selectByColumn(String column) {
+        String query = "SELECT " + column + " FROM person";
+        try {
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery();
+            String header = "+----------------------+";
+            System.out.println(header);
+            System.out.printf("| %-20s |%n", column);
+            System.out.println(header);
+            while (rs.next()) {
+                String result = rs.getString(1);
+                System.out.println(String.format("%-20s", result));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("selectFilteredByColumn hat ein Problem mit der Anfrage.");
         }
     }
 }
