@@ -59,14 +59,12 @@ public class InputHandler {
     public void selectionLoop(Scanner scanner) {
         while (true) {
             try {
-                input = scanner.nextInt();
-                scanner.nextLine();
+                input = Integer.parseInt(scanner.nextLine().trim());
                 if (input > 0 && input < 6) {
                     break;
                 }
             } catch (InputMismatchException i) {
                 System.out.println(ANSI_RED + "Eingaben bitte entsprechend der Auswahl eingeben." + ANSI_RESET);
-                scanner.nextLine();
             }
         }
     }
@@ -92,16 +90,15 @@ public class InputHandler {
     }
 
     public void read(Scanner scanner) {
-        int readSelection = scanner.nextInt();
-        scanner.nextLine();
+        int readSelection = Integer.parseInt(scanner.nextLine());
         if (readPrompt(scanner)) {
             switch (readSelection) {
-                case 1 ->
-                    query.selectAll();
+                case 1 -> query.selectAll();
                 case 2 -> {
                     sleep();
                     System.out.println();
                     System.out.println(ANSI_GREEN + "Nach welcher Spalte möchten Sie suchen?" + ANSI_RESET);
+                    System.out.println();
                     System.out.printf("| %-3s | %-13s | %-13s | %-23s | %-13s | %-12s | %-15s | %-20s |%n",
                             "ID", "Vorname", "Nachname", "E-Mail", "Land", "Geburtstag", "Einkommen", "Bonus");
                     System.out.println("+-----+---------------+---------------+-------------------------+---------------+--------------+-----------------+----------------------+");
@@ -109,32 +106,17 @@ public class InputHandler {
                     sortingColsForSelection(columnFilter);
                 }
                 case 3 -> {
-                    String columnFilter =  scanner.nextLine();
-                    query.selectFilteredByLastName(columnFilter);
-                }
-            }
-        }
-    }
-
-    public void readFilteredByLastName(Scanner scanner) {
-        System.out.println("Möchten Sie die Einträge nach einer im Nachnamen enthaltenen Zeichenkette filtern? (Y/N)");
-        String answer = scanner.nextLine().trim();
-        while (true) {
-            if (answer.equalsIgnoreCase("Y")) {
-                while (true) {
-                    System.out.println("Bitte geben Sie die Zeichenkette an.");
-                    String substring = scanner.nextLine();
-                    if (replyValidation(substring, scanner)) {
-                        break;
+                    String substring = "";
+                    System.out.println("Wie lautet die Zeichenkette nach der gesucht werden soll?");
+                    while (true) {
+                        System.out.println("Bitte geben Sie die Zeichenkette an.");
+                        substring = scanner.nextLine();
+                        if (replyValidation(substring, scanner)) {
+                            query.selectFilteredByLastName(substring);
+                            break;
+                        }
                     }
                 }
-                break;
-            } else if (answer.equalsIgnoreCase("N")) {
-                System.out.println("Die gesamte Tabelle wird ausgegeben.");
-                query.selectAll();
-                break;
-            } else {
-                System.out.println("Valide Möglichkeiten sind nur Y/N.");
             }
         }
     }
@@ -144,7 +126,6 @@ public class InputHandler {
         String confirmation = scanner.nextLine().trim();
         while (true) {
             if (confirmation.equalsIgnoreCase("Y")) {
-                query.selectFilteredByLastName(answer);
                 return true;
             } else if (confirmation.equalsIgnoreCase("N")) {
                 return false;
@@ -197,12 +178,10 @@ public class InputHandler {
                     continue;
                 }
                 System.out.println("Jahreseinkommen: ");
-                salary = scanner.nextInt();
-                scanner.nextLine();
+                salary = Integer.parseInt(scanner.nextLine());
                 System.out.println("Jahreseinkommen: " + salary);
                 System.out.println("Bonus: ");
-                bonus = scanner.nextInt();
-                scanner.nextLine();
+                bonus = Integer.parseInt(scanner.nextLine());
                 System.out.println("Jährlicher Bonus: " + bonus);
                 break;
             } catch (InputMismatchException i) {
@@ -218,7 +197,7 @@ public class InputHandler {
         while (true) {
             System.out.println("Welche Zeile soll gelöscht werden? Bitte passende ID angeben.");
             try {
-                id = scanner.nextInt();
+                id = Integer.parseInt(scanner.nextLine());
                 if (!query.getIDs().contains(id)) {
                     System.out.println(ANSI_RED + "Diese ID existiert nicht.");
                     continue;
@@ -226,7 +205,6 @@ public class InputHandler {
                 break;
             } catch (InputMismatchException i) {
                 System.out.println(ANSI_RED + "IDs können nur aus Zahlen bestehen." + ANSI_RESET);
-                scanner.nextLine();
             }
         }
     }
@@ -235,17 +213,14 @@ public class InputHandler {
         while (true) {
             System.out.println("Zu welcher Zeile soll eine Spalte aktualisiert werden? Bitte passende ID angeben.");
             try {
-                id = scanner.nextInt();
+                id = Integer.parseInt(scanner.nextLine());
                 if (!query.getIDs().contains(id)) {
                     System.out.println(ANSI_RED + "Diese ID existiert nicht.");
-                    scanner.nextLine();
                     continue;
                 }
-                scanner.nextLine();
                 break;
             } catch (InputMismatchException i) {
                 System.out.println(ANSI_RED + "IDs können nur aus Zahlen bestehen." + ANSI_RESET);
-                scanner.nextLine();
             }
         }
     }
@@ -280,8 +255,7 @@ public class InputHandler {
     }
 
     public boolean readPrompt(Scanner scanner) {
-        int i = scanner.nextInt();
-        scanner.nextLine();
+        int i = Integer.parseInt(scanner.nextLine());
         System.out.println(ANSI_GREEN + "Lesen wurde ausgewählt." + ANSI_RESET);
         sleep();
         System.out.println("In welcher Form möchten Sie die Tabelle auslesen?");
@@ -365,7 +339,7 @@ public class InputHandler {
             case "jährlicher Bonus" -> {
                 while (true) {
                     try {
-                        bonus = scanner.nextInt();
+                        bonus = Integer.parseInt(scanner.nextLine());
                         scanner.nextLine();
                         String bonusCol = "bonus";
                         query.updateData(id, bonusCol, bonus);
@@ -379,7 +353,7 @@ public class InputHandler {
             case "Jahreseinkommen" -> {
                 while (true) {
                     try {
-                        salary = scanner.nextInt();
+                        salary = Integer.parseInt(scanner.nextLine());
                         scanner.nextLine();
                         String salaryCol = "salary";
                         query.updateData(id, salaryCol, salary);
@@ -448,29 +422,21 @@ public class InputHandler {
 
     public void sortingColsForSelection(String column) {
         switch (column.trim()) {
-            case "Geburtstag" ->
-                        query.selectByColumn("birthday");
+            case "Geburtstag" -> query.selectByColumn("birthday");
 
-            case "jährlicher Bonus" ->
-                query.selectByColumn("bonus");
+            case "jährlicher Bonus" -> query.selectByColumn("bonus");
 
-            case "Jahreseinkommen" ->
-                query.selectByColumn("salary");
+            case "Jahreseinkommen" -> query.selectByColumn("salary");
 
-            case "Vorname" ->
-                query.selectByColumn("first_name");
+            case "Vorname" -> query.selectByColumn("first_name");
 
-            case "Nachname" ->
-                query.selectByColumn("last_name");
+            case "Nachname" -> query.selectByColumn("last_name");
 
-            case "E-Mail" ->
-                query.selectByColumn("email");
+            case "E-Mail" -> query.selectByColumn("email");
 
-            case "Land" ->
-                query.selectByColumn("country");
+            case "Land" -> query.selectByColumn("country");
 
-            case "ID" ->
-                query.selectByColumn("id");
+            case "ID" -> query.selectByColumn("id");
         }
     }
 }

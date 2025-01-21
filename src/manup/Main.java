@@ -1,5 +1,8 @@
 package manup;
 
+import javafx.application.Application;
+import javafx.stage.Stage;
+
 public class Main {
     private Queries query;
     private InputHandler inputHandler;
@@ -14,3 +17,8 @@ public class Main {
         inputHandler.CRUDselection();
     }
 }
+//    @Override
+//    public void start(Stage stage) throws Exception {
+//
+//    }
+//}
