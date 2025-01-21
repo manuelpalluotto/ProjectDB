@@ -197,8 +197,8 @@ public class Queries {
         }
     }
 
-    public void selectByColumn(String column) {
-        String query = "SELECT " + column + " FROM person";
+    public void selectByColumnSorted(String column) {
+        String query = "SELECT " + column + " FROM person ORDER BY " + column;
         try {
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
@@ -208,7 +208,8 @@ public class Queries {
             System.out.println(header);
             while (rs.next()) {
                 String result = rs.getString(1);
-                System.out.println(String.format("%-20s", result));
+                System.out.println(String.format("|\t%-20s|", result));
+                System.out.println(header);
             }
 
         } catch (SQLException e) {
@@ -216,4 +217,5 @@ public class Queries {
             System.out.println("selectFilteredByColumn hat ein Problem mit der Anfrage.");
         }
     }
+
 }

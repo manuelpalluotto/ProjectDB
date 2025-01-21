@@ -36,7 +36,7 @@ public class InputHandler {
 
         while (true) {
             System.out.println("Bitte wählen Sie dementsprechend: \n1. Erstellen\n2. Lesen\n3. Aktualisieren\n4. Löschen\n5. Programm beenden");
-            selectionLoop(scanner);
+            selectionValidation(scanner);
             switch (input) {
                 case 1:
                     create(scanner);
@@ -56,7 +56,7 @@ public class InputHandler {
         }
     }
 
-    public void selectionLoop(Scanner scanner) {
+    public void selectionValidation(Scanner scanner) {
         while (true) {
             try {
                 input = Integer.parseInt(scanner.nextLine().trim());
@@ -69,70 +69,16 @@ public class InputHandler {
         }
     }
 
-    public void delete(Scanner scanner) {
-        deletePrompt();
-        query.selectAll();
-        findIDtoDelete(scanner);
-        query.deleteData(id);
-        System.out.println("Datensatz gelöscht.");
-    }
-
-    public void update(Scanner scanner) {
-        updatePrompt();
-        query.selectAll();
-        findIDtoUpdate(scanner);
-        findCol(scanner);
-        System.out.println("Bitte den neuen Wert der Spalte angeben.");
-        sortingCols(scanner);
+    public void createPrompt() {
+        System.out.println(ANSI_GREEN + "Erstellen wurde ausgewählt." + ANSI_RESET);
         sleep();
-        System.out.println("Datensatz aktualisiert.");
+        System.out.println("Bitte achten Sie bei Ihrer Eingabe auf folgendes Format:");
         sleep();
-    }
-
-    public void read(Scanner scanner) {
-        int readSelection = Integer.parseInt(scanner.nextLine());
-        if (readPrompt(scanner)) {
-            switch (readSelection) {
-                case 1 -> query.selectAll();
-                case 2 -> {
-                    sleep();
-                    System.out.println();
-                    System.out.println(ANSI_GREEN + "Nach welcher Spalte möchten Sie suchen?" + ANSI_RESET);
-                    System.out.println();
-                    System.out.printf("| %-3s | %-13s | %-13s | %-23s | %-13s | %-12s | %-15s | %-20s |%n",
-                            "ID", "Vorname", "Nachname", "E-Mail", "Land", "Geburtstag", "Einkommen", "Bonus");
-                    System.out.println("+-----+---------------+---------------+-------------------------+---------------+--------------+-----------------+----------------------+");
-                    String columnFilter = scanner.nextLine();
-                    sortingColsForSelection(columnFilter);
-                }
-                case 3 -> {
-                    String substring = "";
-                    System.out.println("Wie lautet die Zeichenkette nach der gesucht werden soll?");
-                    while (true) {
-                        System.out.println("Bitte geben Sie die Zeichenkette an.");
-                        substring = scanner.nextLine();
-                        if (replyValidation(substring, scanner)) {
-                            query.selectFilteredByLastName(substring);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public boolean replyValidation(String answer, Scanner scanner) {
-        System.out.println("Eingabe: \"" + answer + "\". Korrekt?(Y/N)");
-        String confirmation = scanner.nextLine().trim();
-        while (true) {
-            if (confirmation.equalsIgnoreCase("Y")) {
-                return true;
-            } else if (confirmation.equalsIgnoreCase("N")) {
-                return false;
-            } else {
-                System.out.println("Valide Möglichkeiten sind nur \"Y\" oder \"N\".");
-            }
-        }
+        System.out.println("Vorname, Nachname, E-Mail, Herkunftsland, Geburtstag, Jahreseinkommen, jährlicher Bonus");
+        sleep();
+        System.out.println(ANSI_RED + "Erinnerung: Ein Datum wird im Format YYYY-MM-DD eingegeben" + ANSI_RESET);
+        sleep();
+        System.out.println(ANSI_YELLOW + "Hinweis: Nach jeder Eingabe bitte mit Enter bestätigen." + ANSI_RESET);
     }
 
     public void create(Scanner scanner) {
@@ -193,78 +139,47 @@ public class InputHandler {
         query.selectAll();
     }
 
-    public void findIDtoDelete(Scanner scanner) {
-        while (true) {
-            System.out.println("Welche Zeile soll gelöscht werden? Bitte passende ID angeben.");
-            try {
-                id = Integer.parseInt(scanner.nextLine());
-                if (!query.getIDs().contains(id)) {
-                    System.out.println(ANSI_RED + "Diese ID existiert nicht.");
-                    continue;
+    public void read(Scanner scanner) {
+
+        switch (readPrompt(scanner)) {
+            case 1 -> query.selectAll();
+            case 2 -> {
+                sleep();
+                System.out.println();
+                System.out.println(ANSI_GREEN + "Nach welcher Spalte möchten Sie suchen?" + ANSI_RESET);
+                System.out.println();
+                System.out.printf("| %-3s | %-13s | %-13s | %-23s | %-13s | %-12s | %-15s | %-20s |%n",
+                        "ID", "Vorname", "Nachname", "E-Mail", "Land", "Geburtstag", "Jahreseinkommen", "Bonus");
+                System.out.println("+-----+---------------+---------------+-------------------------+---------------+--------------+-----------------+----------------------+");
+                String columnFilter = scanner.nextLine();
+                sortingColsForSelection(columnFilter);
+            }
+            case 3 -> {
+                String substring = "";
+                System.out.println("Wie lautet die Zeichenkette nach der gesucht werden soll?");
+                while (true) {
+                    System.out.println("Bitte geben Sie die Zeichenkette an.");
+                    substring = scanner.nextLine();
+                    if (replyValidation(substring, scanner)) {
+                        query.selectFilteredByLastName(substring);
+                        break;
+                    }
                 }
-                break;
-            } catch (InputMismatchException i) {
-                System.out.println(ANSI_RED + "IDs können nur aus Zahlen bestehen." + ANSI_RESET);
             }
         }
     }
 
-    public void findIDtoUpdate(Scanner scanner) {
-        while (true) {
-            System.out.println("Zu welcher Zeile soll eine Spalte aktualisiert werden? Bitte passende ID angeben.");
-            try {
-                id = Integer.parseInt(scanner.nextLine());
-                if (!query.getIDs().contains(id)) {
-                    System.out.println(ANSI_RED + "Diese ID existiert nicht.");
-                    continue;
-                }
-                break;
-            } catch (InputMismatchException i) {
-                System.out.println(ANSI_RED + "IDs können nur aus Zahlen bestehen." + ANSI_RESET);
-            }
-        }
-    }
-
-    public void findCol(Scanner scanner) {
-        while (true) {
-            query.selectById(id);
-            System.out.println("Welche Spalte zu diesem Eintrag soll aktualisiert werden?");
-            try {
-                column = scanner.nextLine();
-                if (!validateColumn(columns, column)) {
-                    continue;
-                }
-
-                break;
-            } catch (InputMismatchException i) {
-                System.out.println(ANSI_RED + "Bitte die Eingaben an das Schema anpassen." + ANSI_RESET);
-            }
-        }
-    }
-
-    public void createPrompt() {
-        System.out.println(ANSI_GREEN + "Erstellen wurde ausgewählt." + ANSI_RESET);
-        sleep();
-        System.out.println("Bitte achten Sie bei Ihrer Eingabe auf folgendes Format:");
-        sleep();
-        System.out.println("Vorname, Nachname, E-Mail, Herkunftsland, Geburtstag, Jahreseinkommen, jährlicher Bonus");
-        sleep();
-        System.out.println(ANSI_RED + "Erinnerung: Ein Datum wird im Format YYYY-MM-DD eingegeben" + ANSI_RESET);
-        sleep();
-        System.out.println(ANSI_YELLOW + "Hinweis: Nach jeder Eingabe bitte mit Enter bestätigen." + ANSI_RESET);
-    }
-
-    public boolean readPrompt(Scanner scanner) {
-        int i = Integer.parseInt(scanner.nextLine());
+    public int readPrompt(Scanner scanner) {
         System.out.println(ANSI_GREEN + "Lesen wurde ausgewählt." + ANSI_RESET);
         sleep();
         System.out.println("In welcher Form möchten Sie die Tabelle auslesen?");
         sleep();
         System.out.println("1. Gesamte Tabelle\n2. Gefiltert nach einer bestimmten Spalte\n3. Gefiltert nach einer im Nachnamen enthaltenen Zeichenkette");
+        int i = Integer.parseInt(scanner.nextLine());
         while (true) {
             try {
                 if (i > 0 || i < 4) {
-                    return true;
+                    break;
                 } else {
                     System.out.println("Bitte nur Zahlen von 1 bis 3 angeben und mit Enter bestätigen.");
                 }
@@ -272,49 +187,26 @@ public class InputHandler {
                 System.out.println("Bitte nur Zahlen von 1 bis 3 angeben und mit Enter bestätigen.");
             }
         }
+        return i;
     }
 
-    public void updatePrompt() {
-        sleep();
-        System.out.println(ANSI_GREEN + "Aktualisieren ausgewählt." + ANSI_RESET);
-        sleep();
-    }
+    public void sortingColsForSelection(String column) {
+        switch (column.trim()) {
+            case "Geburtstag" -> query.selectByColumnSorted("birthday");
 
-    public void deletePrompt() {
-        sleep();
-        System.out.println(ANSI_GREEN + "Löschen ausgewählt" + ANSI_RESET);
-        sleep();
-        System.out.println("Bitte die ID eingeben und mit Enter bestätigen:");
-        sleep();
-        System.out.println(ANSI_YELLOW + "Hinweis: Die ganze Zeile wird gelöscht!" + ANSI_RESET);
-        sleep();
-    }
+            case "jährlicher Bonus" -> query.selectByColumnSorted("bonus");
 
-    public boolean validateColumn(String[] col, String input) {
-        for (String column : col) {
-            if (column.equals(input)) {
-                return true;
-            }
-        }
-        System.out.println(ANSI_RED + "Diese Spalte existiert nicht." + ANSI_RESET);
-        return false;
-    }
+            case "Jahreseinkommen" -> query.selectByColumnSorted("salary");
 
-    public void sleep() {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
+            case "Vorname" -> query.selectByColumnSorted("first_name");
 
-    public boolean mailValidation(String email) {
-        try {
-            InternetAddress mail = new InternetAddress(email);
-            mail.validate();
-            return true;
-        } catch (Exception e) {
-            return false;
+            case "Nachname" -> query.selectByColumnSorted("last_name");
+
+            case "E-Mail" -> query.selectByColumnSorted("email");
+
+            case "Land" -> query.selectByColumnSorted("country");
+
+            case "ID" -> query.selectByColumnSorted("id");
         }
     }
 
@@ -420,23 +312,130 @@ public class InputHandler {
         }
     }
 
-    public void sortingColsForSelection(String column) {
-        switch (column.trim()) {
-            case "Geburtstag" -> query.selectByColumn("birthday");
+    public boolean replyValidation(String answer, Scanner scanner) {
+        System.out.println("Eingabe: \"" + answer + "\". Korrekt?(Y/N)");
+        String confirmation = scanner.nextLine().trim();
+        while (true) {
+            if (confirmation.equalsIgnoreCase("Y")) {
+                return true;
+            } else if (confirmation.equalsIgnoreCase("N")) {
+                return false;
+            } else {
+                System.out.println("Valide Möglichkeiten sind nur \"Y\" oder \"N\".");
+            }
+        }
+    }
 
-            case "jährlicher Bonus" -> query.selectByColumn("bonus");
+    public void updatePrompt() {
+        sleep();
+        System.out.println(ANSI_GREEN + "Aktualisieren ausgewählt." + ANSI_RESET);
+        sleep();
+    }
 
-            case "Jahreseinkommen" -> query.selectByColumn("salary");
+    public void update(Scanner scanner) {
+        updatePrompt();
+        query.selectAll();
+        findIDtoUpdate(scanner);
+        findCol(scanner);
+        System.out.println("Bitte den neuen Wert der Spalte angeben.");
+        sortingCols(scanner);
+        sleep();
+        System.out.println("Datensatz aktualisiert.");
+        sleep();
+    }
 
-            case "Vorname" -> query.selectByColumn("first_name");
+    public void findIDtoUpdate(Scanner scanner) {
+        while (true) {
+            System.out.println("Zu welcher Zeile soll eine Spalte aktualisiert werden? Bitte passende ID angeben.");
+            try {
+                id = Integer.parseInt(scanner.nextLine());
+                if (!query.getIDs().contains(id)) {
+                    System.out.println(ANSI_RED + "Diese ID existiert nicht.");
+                    continue;
+                }
+                break;
+            } catch (InputMismatchException i) {
+                System.out.println(ANSI_RED + "IDs können nur aus Zahlen bestehen." + ANSI_RESET);
+            }
+        }
+    }
 
-            case "Nachname" -> query.selectByColumn("last_name");
+    public void findCol(Scanner scanner) {
+        while (true) {
+            query.selectById(id);
+            System.out.println("Welche Spalte zu diesem Eintrag soll aktualisiert werden?");
+            try {
+                column = scanner.nextLine();
+                if (!validateColumn(columns, column)) {
+                    continue;
+                }
 
-            case "E-Mail" -> query.selectByColumn("email");
+                break;
+            } catch (InputMismatchException i) {
+                System.out.println(ANSI_RED + "Bitte die Eingaben an das Schema anpassen." + ANSI_RESET);
+            }
+        }
+    }
 
-            case "Land" -> query.selectByColumn("country");
+    public boolean validateColumn(String[] col, String input) {
+        for (String column : col) {
+            if (column.equals(input)) {
+                return true;
+            }
+        }
+        System.out.println(ANSI_RED + "Diese Spalte existiert nicht." + ANSI_RESET);
+        return false;
+    }
 
-            case "ID" -> query.selectByColumn("id");
+    public void deletePrompt() {
+        sleep();
+        System.out.println(ANSI_GREEN + "Löschen ausgewählt" + ANSI_RESET);
+        sleep();
+        System.out.println("Bitte die ID eingeben und mit Enter bestätigen:");
+        sleep();
+        System.out.println(ANSI_YELLOW + "Hinweis: Die ganze Zeile wird gelöscht!" + ANSI_RESET);
+        sleep();
+    }
+
+    public void delete(Scanner scanner) {
+        deletePrompt();
+        query.selectAll();
+        findIDtoDelete(scanner);
+        query.deleteData(id);
+        System.out.println("Datensatz gelöscht.");
+    }
+
+    public void findIDtoDelete(Scanner scanner) {
+        while (true) {
+            System.out.println("Welche Zeile soll gelöscht werden? Bitte passende ID angeben.");
+            try {
+                id = Integer.parseInt(scanner.nextLine());
+                if (!query.getIDs().contains(id)) {
+                    System.out.println(ANSI_RED + "Diese ID existiert nicht.");
+                    continue;
+                }
+                break;
+            } catch (InputMismatchException i) {
+                System.out.println(ANSI_RED + "IDs können nur aus Zahlen bestehen." + ANSI_RESET);
+            }
+        }
+    }
+
+    public boolean mailValidation(String email) {
+        try {
+            InternetAddress mail = new InternetAddress(email);
+            mail.validate();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void sleep() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 }
